@@ -29,20 +29,22 @@ class ViewController: UITableViewController {
                     return
                 }
             }
+
+            self?.showError()
         }
-
-
-        showError()
     }
 
     func showError() {
-        let ac = UIAlertController(
-            title: "Loading Error",
-            message: "There was an issue loading the data.",
-            preferredStyle: .alert
-        )
-        ac.addAction(UIAlertAction(title: "OK", style: .default))
-        present(ac, animated: true)
+        DispatchQueue.main.async {
+            [weak self] in
+            let ac = UIAlertController(
+                title: "Loading Error",
+                message: "There was an issue loading the data.",
+                preferredStyle: .alert
+            )
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+            self?.present(ac, animated: true)
+        }
     }
 
     func parse(json: Data) {
@@ -50,7 +52,10 @@ class ViewController: UITableViewController {
 
         if let jsonPetitions = try? decoder.decode(Petitions.self, from: json) {
             petitions = jsonPetitions.results
-            tableView.reloadData()
+
+            DispatchQueue.main.async { [weak self] in
+                self?.tableView.reloadData()
+            }
         }
     }
 
